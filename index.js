@@ -1,6 +1,8 @@
 const express = require("express");
 const path = require("path");
 const { connecttomongodb } = require("./connection");
+const cookieparser = require('cookie-parser');
+const { restricttologgedinuseronly } = require('./middleware/auth');
 
 const URL = require("./models/url");
 
@@ -14,6 +16,8 @@ const PORT = process.env.PORT || 3000;
 // middleware
 app.use(express.json());
 app.use(express.urlencoded({extended:false}))
+app.use(cookieparser());
+
 // connection
 connecttomongodb("mongodb://localhost:27017/myshorturl");
 
@@ -22,7 +26,7 @@ app.set("views", path.resolve("./views"));
 
 // routes
 
-app.use("/url", urlroute);
+app.use("/url",restricttologgedinuseronly, urlroute);
 app.use("/user", userRoute);
 app.use("/", staticRoute);
 
